@@ -8,6 +8,25 @@
 # F} alphaVal = [0,1] geneAnnot is a dataframe with
 # 4 columns: geneSymbol, chr, start, stop spacing
 # is the distance between each track
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param dataIn PARAM_DESCRIPTION
+#' @param chr PARAM_DESCRIPTION, Default: c(1:22)
+#' @param geneAnnot PARAM_DESCRIPTION, Default: NULL
+#' @param spacing PARAM_DESCRIPTION, Default: 4
+#' @param xlim PARAM_DESCRIPTION, Default: NULL
+#' @param ... PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname plotAllelicRatio
+
 plotAllelicRatio <- function(dataIn, chr = c(1:22), geneAnnot = NULL,
     spacing = 4,  xlim = NULL, ...) {
     # color coding alphaVal <- ceiling(alphaVal * 255);
@@ -24,7 +43,7 @@ plotAllelicRatio <- function(dataIn, chr = c(1:22), geneAnnot = NULL,
   	chr <- as.character(chr)
   	genomeStyle <- seqlevelsStyle(as.character(dataIn$Chr))[1]
   	chr <- mapSeqlevels(chr, genomeStyle, drop = FALSE)[1, ]
-	
+
     dataIn <- copy(dataIn)
     if (!is.null(chr) && length(chr) == 1) {
         for (i in chr) {
@@ -72,6 +91,26 @@ plotAllelicRatio <- function(dataIn, chr = c(1:22), geneAnnot = NULL,
 # [0,1] geneAnnot is a dataframe with 4 columns:
 # geneSymbol, chr, start, stop spacing is the
 # distance between each track
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param dataIn PARAM_DESCRIPTION
+#' @param chr PARAM_DESCRIPTION, Default: c(1:22)
+#' @param normal PARAM_DESCRIPTION, Default: NULL
+#' @param geneAnnot PARAM_DESCRIPTION, Default: NULL
+#' @param spacing PARAM_DESCRIPTION, Default: 4
+#' @param xlim PARAM_DESCRIPTION, Default: NULL
+#' @param ... PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname plotClonalFrequency
+
 plotClonalFrequency <- function(dataIn, chr = c(1:22),
     normal = NULL, geneAnnot = NULL, spacing = 4, xlim = NULL, ...) {
     # color coding
@@ -85,7 +124,7 @@ plotClonalFrequency <- function(dataIn, chr = c(1:22),
   	chr <- as.character(chr)
   	genomeStyle <- seqlevelsStyle(as.character(dataIn$Chr))[1]
   	chr <- mapSeqlevels(chr, genomeStyle, drop = FALSE)[1, ]
-	
+
     # get unique set of cluster and estimates table:
     # 1st column is cluster number, 2nd column is
     # clonal freq
@@ -208,7 +247,31 @@ plotClonalFrequency <- function(dataIn, chr = c(1:22),
 # alphaVal = [0,1] geneAnnot is a dataframe with 4
 # columns: geneSymbol, chr, start, stop spacing is
 # the distance between each track
-plotCNlogRByChr <- function(dataIn, chr = c(1:22), segs = NULL, 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param dataIn PARAM_DESCRIPTION
+#' @param chr PARAM_DESCRIPTION, Default: c(1:22)
+#' @param segs PARAM_DESCRIPTION, Default: NULL
+#' @param plotCorrectedCN PARAM_DESCRIPTION, Default: TRUE
+#' @param geneAnnot PARAM_DESCRIPTION, Default: NULL
+#' @param ploidy PARAM_DESCRIPTION, Default: NULL
+#' @param normal PARAM_DESCRIPTION, Default: NULL
+#' @param spacing PARAM_DESCRIPTION, Default: 4
+#' @param alphaVal PARAM_DESCRIPTION, Default: 1
+#' @param xlim PARAM_DESCRIPTION, Default: NULL
+#' @param ... PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname plotCNlogRByChr
+
+plotCNlogRByChr <- function(dataIn, chr = c(1:22), segs = NULL,
 	plotCorrectedCN = TRUE, geneAnnot = NULL,
     ploidy = NULL, normal = NULL, spacing = 4, alphaVal = 1, xlim = NULL, ...) {
     # color coding
@@ -220,12 +283,12 @@ plotCNlogRByChr <- function(dataIn, chr = c(1:22), segs = NULL,
     # cnCol <-
     # col2rgb(c('green','darkgreen','blue','darkred','red','brightred'))
     names(cnCol) <- c(0:500)
-	
+
 	# use consistent chromosome naming convention
   	chr <- as.character(chr)
   	genomeStyle <- seqlevelsStyle(as.character(dataIn$Chr))[1]
   	chr <- mapSeqlevels(chr, genomeStyle, drop = FALSE)[1, ]
-	
+
   	if (plotCorrectedCN && "Corrected_Copy_Number" %in% colnames(dataIn)){
   		binCN <- "Corrected_Copy_Number"
   		segCN <- "Corrected_Copy_Number"
@@ -233,7 +296,7 @@ plotCNlogRByChr <- function(dataIn, chr = c(1:22), segs = NULL,
   		binCN <- "CopyNumber"
   		segCN <- "Copy_Number"
   	}
-	
+
     dataIn <- copy(dataIn)
     ## adjust logR values for ploidy ##
     if (!is.null(ploidy)) {
@@ -266,7 +329,7 @@ plotCNlogRByChr <- function(dataIn, chr = c(1:22), segs = NULL,
             if (!is.null(segs)){
 							segsByChr <- segs.sample[Chromosome == as.character(i), ]
 							tmp <- apply(segsByChr, 1, function(x){
-								lines(x[c("Start_Position.bp.","End_Position.bp.")], 
+								lines(x[c("Start_Position.bp.","End_Position.bp.")],
 										rep(x["Median_logR"], 2), col = cnCol[as.character(x[segCN])], lwd = 3, lend = 1)
 							})
 						}
@@ -306,6 +369,25 @@ plotCNlogRByChr <- function(dataIn, chr = c(1:22), segs = NULL,
 
 }
 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param dataIn PARAM_DESCRIPTION
+#' @param chr PARAM_DESCRIPTION, Default: c(1:22)
+#' @param geneAnnot PARAM_DESCRIPTION, Default: NULL
+#' @param spacing PARAM_DESCRIPTION, Default: 4
+#' @param xlim PARAM_DESCRIPTION, Default: NULL
+#' @param ... PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname plotSubcloneProfiles
+
 plotSubcloneProfiles <- function(dataIn, chr = c(1:22), geneAnnot = NULL,
 	spacing = 4, xlim = NULL, ...){
 	args <- list(...)
@@ -344,7 +426,7 @@ plotSubcloneProfiles <- function(dataIn, chr = c(1:22), geneAnnot = NULL,
             # setup plot to include X number of clones (numClones)
             maxCN <- dataByChr[, max(CopyNumber)] + 1
             ylim <- c(0, numClones * (maxCN + 2) - 1)
-            plot(0, type = "n", xaxt = "n", ylab = "", 
+            plot(0, type = "n", xaxt = "n", ylab = "",
             	xlim = xlim, ylim = ylim, yaxt = "n", ...)
             axis(2, at = seq(ylim[1], ylim[2], 1), las = 1,
             	labels = rep(c(0:maxCN, "---"), numClones), cex.axis=cex.axis)
@@ -452,8 +534,34 @@ plotAllelicCN <- function(dataIn, resultType = "AllelicRatio",
 
 
 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param dataIn PARAM_DESCRIPTION
+#' @param resultType PARAM_DESCRIPTION, Default: 'LogRatio'
+#' @param plotType PARAM_DESCRIPTION, Default: 'CopyNumber'
+#' @param plotCorrectedCN PARAM_DESCRIPTION, Default: TRUE
+#' @param chr PARAM_DESCRIPTION, Default: c(1:22)
+#' @param geneAnnot PARAM_DESCRIPTION, Default: NULL
+#' @param ploidy PARAM_DESCRIPTION, Default: NULL
+#' @param spacing PARAM_DESCRIPTION, Default: 4
+#' @param alphaVal PARAM_DESCRIPTION, Default: 1
+#' @param xlim PARAM_DESCRIPTION, Default: NULL
+#' @param plot.new PARAM_DESCRIPTION, Default: FALSE
+#' @param lwd PARAM_DESCRIPTION, Default: 8
+#' @param ... PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname plotSegmentMedians
+
 plotSegmentMedians <- function(dataIn, resultType = "LogRatio",
-                               plotType = "CopyNumber", plotCorrectedCN = TRUE, 
+                               plotType = "CopyNumber", plotCorrectedCN = TRUE,
                                chr = c(1:22), geneAnnot = NULL, ploidy = NULL, spacing = 4, alphaVal = 1, xlim = NULL, plot.new = FALSE, lwd = 8, ...){
 
 	## check for the possible resultType to plot ##
@@ -463,12 +571,12 @@ plotSegmentMedians <- function(dataIn, resultType = "LogRatio",
   if (!plotType %in% c("CopyNumber", "Ratio")){
     stop("plotSegmentMedians: plotType must be 'CopyNumber' or 'Ratio'")
   }
-  
+
   	# use consistent chromosome naming convention
   	chr <- as.character(chr)
   	genomeStyle <- seqlevelsStyle(as.character(dataIn$Chr))[1]
   	chr <- mapSeqlevels(chr, genomeStyle, drop = FALSE)[1, ]
-  
+
   	dataType <- c("Median_logR", "Median_Ratio", "Median_HaplotypeRatio")
   	names(dataType) <- c("LogRatio", "AllelicRatio", "HaplotypeRatio")
   	axisName <- c("Copy Number (log ratio)", "Allelic Ratio", "Haplotype Fraction")
@@ -477,11 +585,11 @@ plotSegmentMedians <- function(dataIn, resultType = "LogRatio",
   	names(axisNameCN) <- c("LogRatio", "AllelicRatio")
   	colName <- c("Copy_Number","TITAN_call", "TITAN_call")
   	names(colName) <- c("LogRatio", "AllelicRatio", "HaplotypeRatio")
-  
+
   	if (plotCorrectedCN && "Corrected_Copy_Number" %in% colnames(dataIn)){
   		colName[1] <- "Corrected_Copy_Number"
   	}
-  
+
   	dataIn <- copy(dataIn)
 	# color coding
     alphaVal <- ceiling(alphaVal * 255)
@@ -602,6 +710,22 @@ plotSegmentMedians <- function(dataIn, resultType = "LogRatio",
     }
 }
 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param geneAnnot PARAM_DESCRIPTION
+#' @param chr PARAM_DESCRIPTION, Default: 1
+#' @param ... PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname plotGeneAnnotation
+
 plotGeneAnnotation <- function(geneAnnot, chr = 1, ...) {
     colnames(geneAnnot) <- c("Gene", "Chr", "Start",
         "Stop")
@@ -626,6 +750,22 @@ plotGeneAnnotation <- function(geneAnnot, chr = 1, ...) {
     }
 }
 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param chrs PARAM_DESCRIPTION
+#' @param chrBkpt PARAM_DESCRIPTION
+#' @param yrange PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname plotChrLines
+
 plotChrLines <- function(chrs, chrBkpt, yrange) {
     # plot vertical chromosome lines
     for (j in 1:length(chrBkpt)) {
@@ -638,6 +778,22 @@ plotChrLines <- function(chrs, chrBkpt, yrange) {
     axis(side = 1, at = mid, labels = c(chrsToShow),
         cex.axis = 1.5, tick = FALSE)
 }
+
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param chrs PARAM_DESCRIPTION
+#' @param posns PARAM_DESCRIPTION
+#' @param seqinfo PARAM_DESCRIPTION, Default: NULL
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname getGenomeWidePositions
 
 getGenomeWidePositions <- function(chrs, posns, seqinfo = NULL) {
     # create genome coordinate scaffold
@@ -661,6 +817,36 @@ getGenomeWidePositions <- function(chrs, posns, seqinfo = NULL) {
 
 
 ### modify SNPchip function "plotIdiogram"
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param chromosome PARAM_DESCRIPTION
+#' @param cytoband PARAM_DESCRIPTION
+#' @param seqinfo PARAM_DESCRIPTION
+#' @param cytoband.ycoords PARAM_DESCRIPTION
+#' @param xlim PARAM_DESCRIPTION
+#' @param ylim PARAM_DESCRIPTION, Default: c(0, 2)
+#' @param new PARAM_DESCRIPTION, Default: TRUE
+#' @param label.cytoband PARAM_DESCRIPTION, Default: TRUE
+#' @param label.y PARAM_DESCRIPTION, Default: NULL
+#' @param srt PARAM_DESCRIPTION
+#' @param cex.axis PARAM_DESCRIPTION, Default: 1
+#' @param outer PARAM_DESCRIPTION, Default: FALSE
+#' @param taper PARAM_DESCRIPTION, Default: 0.15
+#' @param verbose PARAM_DESCRIPTION, Default: FALSE
+#' @param unit PARAM_DESCRIPTION, Default: c("bp", "Mb")
+#' @param is.lattice PARAM_DESCRIPTION, Default: FALSE
+#' @param ... PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname plotIdiogram.hg38
+
 plotIdiogram.hg38 <- function (chromosome, cytoband, seqinfo, cytoband.ycoords, xlim,
     ylim = c(0, 2), new = TRUE, label.cytoband = TRUE, label.y = NULL,
     srt, cex.axis = 1, outer = FALSE, taper = 0.15, verbose = FALSE,
@@ -673,7 +859,7 @@ plotIdiogram.hg38 <- function (chromosome, cytoband, seqinfo, cytoband.ycoords, 
         segments <- lsegments
         polygon <- lpolygon
     }
-  
+
     cytoband <- cytoband[cytoband[, "chrom"] == chromosome, ]
     unit <- match.arg(unit)
     if (unit == "Mb") {

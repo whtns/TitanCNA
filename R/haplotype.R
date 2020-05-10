@@ -1,4 +1,4 @@
-#' author: Gavin Ha 
+#' author: Gavin Ha
 #' 		Dana-Farber Cancer Institute
 #'		Broad Institute
 #' contact: <gavinha@gmail.com> or <gavinha@broadinstitute.org>
@@ -6,6 +6,22 @@
 
 #' @import data.table
 #' @import GenomicRanges
+
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param bxDir PARAM_DESCRIPTION
+#' @param chrs PARAM_DESCRIPTION, Default: c(1:22, "X", "Y")
+#' @param minReads PARAM_DESCRIPTION, Default: 2
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname loadBXcountsFromBEDDir
 
 loadBXcountsFromBEDDir <- function(bxDir, chrs = c(1:22, "X", "Y"), minReads = 2){
 	files <- list.files(bxDir, pattern=".bed", full.names = TRUE)
@@ -34,24 +50,45 @@ loadBXcountsFromBEDDir <- function(bxDir, chrs = c(1:22, "X", "Y"), minReads = 2
 }
 
 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param counts PARAM_DESCRIPTION
+#' @param chrs PARAM_DESCRIPTION, Default: c(1:22, "X", "Y")
+#' @param gc PARAM_DESCRIPTION, Default: NULL
+#' @param map PARAM_DESCRIPTION, Default: NULL
+#' @param centromere PARAM_DESCRIPTION, Default: NULL
+#' @param flankLength PARAM_DESCRIPTION, Default: 1e+05
+#' @param targetedSequences PARAM_DESCRIPTION, Default: NULL
+#' @param genomeStyle PARAM_DESCRIPTION, Default: 'NCBI'
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname loadReadCountsFromBed
+
 loadReadCountsFromBed <- function(counts, chrs = c(1:22, "X", "Y"), gc = NULL, map = NULL, centromere = NULL, flankLength = 100000, targetedSequences = NULL, genomeStyle = "NCBI"){
 
 	names(counts) <- setGenomeStyle(names(counts), genomeStyle)
 	counts <- keepChr(counts, chrs)
-	if (!is.null(gc)){ 
+	if (!is.null(gc)){
 		names(gc) <- setGenomeStyle(names(gc), genomeStyle)
 		gc <- keepChr(gc, chrs)
 		counts$gc <- gc$value
 	}
-	if (!is.null(map)){ 
+	if (!is.null(map)){
 		names(map) <- setGenomeStyle(names(map), genomeStyle)
 		map <- keepChr(map, chrs)
 		counts$map <- map$value
 	}
 	colnames(counts)[1] <- c("reads")
-	
+
 	# remove centromeres
-	if (!is.null(centromere)){ 
+	if (!is.null(centromere)){
 		centromere$Chr <- setGenomeStyle(centromere$Chr, genomeStyle)
 		counts <- excludeCentromere(counts, centromere, flankLength = flankLength)
 	}
@@ -66,26 +103,55 @@ loadReadCountsFromBed <- function(counts, chrs = c(1:22, "X", "Y"), gc = NULL, m
 	return(counts)
 }
 
-loadHaplotypeAlleleCounts <- function(inCounts, cnfile, fun = "sum", haplotypeBinSize = 1e5, 
-      minSNPsInBin = 3, chrs = c(1:22, "X"), minNormQual = 200, 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param inCounts PARAM_DESCRIPTION
+#' @param cnfile PARAM_DESCRIPTION
+#' @param fun PARAM_DESCRIPTION, Default: 'sum'
+#' @param haplotypeBinSize PARAM_DESCRIPTION, Default: 1e+05
+#' @param minSNPsInBin PARAM_DESCRIPTION, Default: 3
+#' @param chrs PARAM_DESCRIPTION, Default: c(1:22, "X")
+#' @param minNormQual PARAM_DESCRIPTION, Default: 200
+#' @param genomeStyle PARAM_DESCRIPTION, Default: 'NCBI'
+#' @param sep PARAM_DESCRIPTION, Default: '	'
+#' @param header PARAM_DESCRIPTION, Default: TRUE
+#' @param seqinfo PARAM_DESCRIPTION, Default: NULL
+#' @param mapWig PARAM_DESCRIPTION, Default: NULL
+#' @param mapThres PARAM_DESCRIPTION, Default: 0.9
+#' @param centromere PARAM_DESCRIPTION, Default: NULL
+#' @param minDepth PARAM_DESCRIPTION, Default: 10
+#' @param maxDepth PARAM_DESCRIPTION, Default: 1000
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname loadHaplotypeAlleleCounts
+
+loadHaplotypeAlleleCounts <- function(inCounts, cnfile, fun = "sum", haplotypeBinSize = 1e5,
+      minSNPsInBin = 3, chrs = c(1:22, "X"), minNormQual = 200,
       genomeStyle = "NCBI", sep = "\t", header = TRUE, seqinfo = NULL,
       mapWig = NULL, mapThres = 0.9, centromere = NULL, minDepth = 10, maxDepth = 1000) {
 	if (is.character(inCounts)){
-    ## LOAD INPUT READ COUNT DATA 
+    ## LOAD INPUT READ COUNT DATA
     	message("titan: Loading data and phasing information ", inCounts)
-    	data <- read.delim(inCounts, header = header, stringsAsFactors = FALSE, 
+    	data <- read.delim(inCounts, header = header, stringsAsFactors = FALSE,
         		sep = sep)
       colnames(data) <- c("chr", "posn", "refBase", "ref", "nonRefBase", "nonRef", "normQual", "genotype", "phaseSet")
-      if (typeof(data[,"posn"])!="integer" || typeof(data[,"ref"])!="integer" || 
+      if (typeof(data[,"posn"])!="integer" || typeof(data[,"ref"])!="integer" ||
           typeof(data[,"nonRef"])!="integer" || is.null(data$genotype) || is.null(data$phaseSet)){
-        stop("loadHaplotypeAlleleCounts: Input counts file format does not match required specifications.")	
+        stop("loadHaplotypeAlleleCounts: Input counts file format does not match required specifications.")
       }
     }else if (is.data.frame(inCounts)){  #inCounts is a data.frame
     	data <- inCounts
   	}else{
     	stop("loadHaplotypeAlleleCounts: Must provide a filename or data.frame to inCounts")
   	}
-  
+
 	if (is.null(seqinfo)){
 	seqinfo <- readRDS(system.file("extdata", "Seqinfo_hg19.rds", package = "TitanCNA"))
 	}
@@ -93,7 +159,7 @@ loadHaplotypeAlleleCounts <- function(inCounts, cnfile, fun = "sum", haplotypeBi
 	seqlevelsStyle(chrs) <- genomeStyle
 	# convert to desired genomeStyle and only include autosomes, sex chromosomes
 	data[, 1] <- setGenomeStyle(data[, 1], genomeStyle)
-   
+
 	## sort chromosomes
 	indChr <- orderSeqlevels(as.character(data[, "chr"]), X.is.sexchrom = TRUE)
 	data <- data[indChr, ]
@@ -102,7 +168,7 @@ loadHaplotypeAlleleCounts <- function(inCounts, cnfile, fun = "sum", haplotypeBi
 		ind <- which(data[, "chr"] == x)
 		data[ind, ] <- data[ind[order(data[ind, "posn"], decreasing = FALSE)], ]
 	}
-  
+
   ## filter data ##
   data <- cbind(data, start = data$posn, end = data$posn, depth = data$ref + data$nonRef)
   data <- data[data$normQual >= minNormQual, ]
@@ -123,22 +189,22 @@ loadHaplotypeAlleleCounts <- function(inCounts, cnfile, fun = "sum", haplotypeBi
   ## use data.table to process haplotype counts by blocks
   data <- as(data.gr, "data.frame")
   data.dt <- data.table(as(data.gr, "data.frame"))
-  haploBinSummary <- data.dt[, list(HaplotypeFraction = mean(phasedAlleleFraction), 
+  haploBinSummary <- data.dt[, list(HaplotypeFraction = mean(phasedAlleleFraction),
       HaplotypeDepth.sum = sum(phasedCount), HaplotypeBinDepth.sum = sum(depth),
       HaplotypeDepth.mean = round(mean(phasedCount)), #round?
-      #HaplotypeDepth.mean = round(mean(ref.symmetric)), 
+      #HaplotypeDepth.mean = round(mean(ref.symmetric)),
       HaplotypeBinDepth.mean = round(mean(depth)), #round?
       SNPs = length(phasedAlleleFraction)), by = c("phaseSet", "haplotypeBin")]
   # filter bins by number of SNPs #
   haploBinSummary <- haploBinSummary[SNPs >= minSNPsInBin]
   # summary bins with multiple phaseset ID such that haplotypeBin is unique
   haploBinSummary.unique <- haploBinSummary[, list(SNPs = sum(SNPs),
-    HaplotypeFraction = sum(HaplotypeFraction * SNPs) / sum(SNPs), 
+    HaplotypeFraction = sum(HaplotypeFraction * SNPs) / sum(SNPs),
     HaplotypeDepth.sum = sum(HaplotypeDepth.sum),
-    #HaplotypeDepth.sum.symmetric = sum(HaplotypeDepth.sum.symmetric), 
+    #HaplotypeDepth.sum.symmetric = sum(HaplotypeDepth.sum.symmetric),
     HaplotypeBinDepth.sum = sum(HaplotypeBinDepth.sum),
     HaplotypeDepth.mean = round(sum(HaplotypeDepth.mean * SNPs) / sum(SNPs)), #round?
-    #HaplotypeDepth.mean.symmetric = round(sum(HaplotypeDepth.mean.symmetric * SNPs) / sum(SNPs)), 
+    #HaplotypeDepth.mean.symmetric = round(sum(HaplotypeDepth.mean.symmetric * SNPs) / sum(SNPs)),
     HaplotypeBinDepth.mean = round(sum(HaplotypeBinDepth.mean * SNPs) / sum(SNPs)), #round?
     phaseSet = phaseSet[which.max(SNPs)]), by = haplotypeBin]
     # get symmetric haplotype fraction
@@ -146,26 +212,26 @@ loadHaplotypeAlleleCounts <- function(inCounts, cnfile, fun = "sum", haplotypeBi
   haploBinSummary.unique[, HaplotypeDepth.sum.symmetric := pmax(HaplotypeDepth.sum, HaplotypeBinDepth.sum - HaplotypeDepth.sum)]
   haploBinSummary.unique[, HaplotypeDepth.mean.symmetric := pmax(HaplotypeDepth.mean, HaplotypeBinDepth.mean - HaplotypeDepth.mean)]
    # set bin column as key so that we can map back to original data
-  setkey(haploBinSummary.unique, haplotypeBin) 
+  setkey(haploBinSummary.unique, haplotypeBin)
   # add the bin summarized values back to data.dt
-  data.dt <- cbind(data.dt, select(haploBinSummary.unique[.(subjectHits(hits))], 
+  data.dt <- cbind(data.dt, select(haploBinSummary.unique[.(subjectHits(hits))],
       haplotypeBin.aggr = haplotypeBin, HaplotypeFraction.symmetric, HaplotypeDepth.sum,
-      HaplotypeDepth.sum.symmetric, HaplotypeBinDepth.sum, HaplotypeDepth.mean, 
-      HaplotypeDepth.mean.symmetric, HaplotypeBinDepth.mean, 
+      HaplotypeDepth.sum.symmetric, HaplotypeBinDepth.sum, HaplotypeDepth.mean,
+      HaplotypeDepth.mean.symmetric, HaplotypeBinDepth.mean,
       SNPs, phaseSet.aggr = phaseSet))
   data.dt <- na.omit(data.dt)
   data.dt[, phasedCount.haploSymmetric := {
     if (HaplotypeDepth.sum != HaplotypeDepth.sum.symmetric){
-      depth - phasedCount 
+      depth - phasedCount
     }else{
       phasedCount
     }
   }, by=1:nrow(data.dt)]
-  alleleData <- select(data.dt, chr=seqnames, posn=start, 
+  alleleData <- select(data.dt, chr=seqnames, posn=start,
       refOriginal=ref, nonRef=nonRef, tumDepth=depth)
   alleleData$chr <- as.character(alleleData$chr)
   alleleData$ref = pmax(alleleData$refOriginal, alleleData$nonRef)
-  haplotypeData <- select(data.dt, chr=seqnames, posn=start, 
+  haplotypeData <- select(data.dt, chr=seqnames, posn=start,
       phaseSet=phaseSet.aggr, refOriginal=ref, tumDepthOriginal = depth)
   haplotypeData$chr <- as.character(haplotypeData$chr)
   if (fun == "sum"){
@@ -188,7 +254,7 @@ loadHaplotypeAlleleCounts <- function(inCounts, cnfile, fun = "sum", haplotypeBi
     haplotypeData$haplotypeCount <- data.dt[, phasedCount.haploSymmetric]
   }
   haplotypeData$nonRef <- haplotypeData$tumDepth - haplotypeData$ref
-  
+
   	## filtering ##
 	if (!is.null(centromere)){
 		centromere <- read.delim(centromere,header=T,stringsAsFactors=F,sep="\t")
@@ -209,15 +275,29 @@ loadHaplotypeAlleleCounts <- function(inCounts, cnfile, fun = "sum", haplotypeBi
 	if (!is.null(mapWig)){
 		mScore <- as.data.frame(wigToRangedData(mapWig))
 		mScore <- getPositionOverlap(haplotypeData$chr,haplotypeData$posn,mScore[,-4])
-		haplotypeData <- filterData(haplotypeData,chrs, minDepth=minDepth, maxDepth=maxDepth, 
+		haplotypeData <- filterData(haplotypeData,chrs, minDepth=minDepth, maxDepth=maxDepth,
 			map=mScore,mapThres=mapThres, centromeres = centromere)
 		rm(mScore)
 	}else{
 		haplotypeData <- filterData(haplotypeData,chrs,minDepth=minDepth,maxDepth=maxDepth,centromeres = centromere)
 	}
-  
+
   return(list(haplotypeData=haplotypeData, alleleData=alleleData, data=data.dt))
 }
+
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param x PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname getPhasedAlleleFraction
 
 getPhasedAlleleFraction <- function(x){
   altInd <- as.logical(as.numeric(tstrsplit(x$genotype, "\\||\\/")[[1]]))
@@ -231,8 +311,32 @@ getPhasedAlleleFraction <- function(x){
   return(list(allele.fraction = allele.fraction, phasedCount = phasedCount))
 }
 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param vcfFile PARAM_DESCRIPTION
+#' @param chrs PARAM_DESCRIPTION, Default: c(1:22, "X")
+#' @param build PARAM_DESCRIPTION, Default: 'hg19'
+#' @param genomeStyle PARAM_DESCRIPTION, Default: 'NCBI'
+#' @param filterFlags PARAM_DESCRIPTION, Default: c("PASS", "10X_RESCUED_MOLECULE_HIGH_DIVERSITY")
+#' @param minQUAL PARAM_DESCRIPTION, Default: 100
+#' @param minDepth PARAM_DESCRIPTION, Default: 10
+#' @param minVAF PARAM_DESCRIPTION, Default: 0.25
+#' @param altCountField PARAM_DESCRIPTION, Default: 'AD'
+#' @param keepGenotypes PARAM_DESCRIPTION, Default: c("1|0", "0|1", "0/1")
+#' @param snpDB PARAM_DESCRIPTION, Default: NULL
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname getHaplotypesFromVCF
+
 getHaplotypesFromVCF <- function(vcfFile, chrs = c(1:22, "X"), build = "hg19", genomeStyle = "NCBI",
-                                 filterFlags = c("PASS", "10X_RESCUED_MOLECULE_HIGH_DIVERSITY"), 
+                                 filterFlags = c("PASS", "10X_RESCUED_MOLECULE_HIGH_DIVERSITY"),
                                  minQUAL = 100, minDepth = 10, minVAF = 0.25, altCountField = "AD",
                                  keepGenotypes = c("1|0", "0|1", "0/1"), snpDB = NULL){
   #require(data.table)
@@ -241,7 +345,7 @@ getHaplotypesFromVCF <- function(vcfFile, chrs = c(1:22, "X"), build = "hg19", g
   chrName <- mapSeqlevels(seqlevels(vcf), style = genomeStyle)
   rowRanges(vcf) <- renameSeqlevels(rowRanges(vcf), na.omit(chrName))
   #keepGenotypes = c("1|0", "0|1", "0/1")
-  
+
   ## filter vcf ##
   message("Filtering VCF ...")
   message("  by chromsomes")
@@ -251,7 +355,7 @@ getHaplotypesFromVCF <- function(vcfFile, chrs = c(1:22, "X"), build = "hg19", g
   # keep by filter flags
   indFILTER <- rowRanges(vcf)$FILTER %in% filterFlags
   # keep SNPs - ref and alt have length of 1 and only a single allele for ref/alt
-  indSNP <- nchar(unstrsplit(CharacterList(rowRanges(vcf)$ALT), sep=",")) == 1 & 
+  indSNP <- nchar(unstrsplit(CharacterList(rowRanges(vcf)$ALT), sep=",")) == 1 &
     nchar(unstrsplit(rowRanges(vcf)$REF, sep=",")) == 1
   message("  by quality >=", minQUAL, ")")
   indQUAL <- rowRanges(vcf)$QUAL >= minQUAL
@@ -260,7 +364,7 @@ getHaplotypesFromVCF <- function(vcfFile, chrs = c(1:22, "X"), build = "hg19", g
   indGeno <- geno(vcf)$GT %in% keepGenotypes
   ind <- indFILTER & indSNP & indQUAL & indGeno
   vcf <- vcf[which(ind)]
-  
+
   message("  by depth (>=", minDepth, ")")
   depth <- geno(vcf)$DP
   indDP <- depth >= minDepth
@@ -274,31 +378,31 @@ getHaplotypesFromVCF <- function(vcfFile, chrs = c(1:22, "X"), build = "hg19", g
   indVAR <- (altCounts / depth) >= minVAF
   vcf <- vcf[which(indDP & indVAR)]
   rm(depth)
-  
+
   if (!is.null(snpDB)){
     message (" by SNP VCF file ", snpDB)
     snp <- readVcf(snpDB, genome = build)
-    snpInd <- nchar(unstrsplit(CharacterList(rowRanges(snp)$ALT), sep=",")) == 1 & 
+    snpInd <- nchar(unstrsplit(CharacterList(rowRanges(snp)$ALT), sep=",")) == 1 &
       nchar(unstrsplit(rowRanges(snp)$REF, sep=",")) == 1
     snp <- snp[which(snpInd)]
     hits <- findOverlaps(query = rowRanges(vcf), subject = rowRanges(snp))
     indSNPDB <- queryHits(hits)
     vcf <- vcf[indSNPDB]
   }
-  ## 
+  ##
   #acounts <- do.call(rbind, geno(vcf)$AD)
   # phased snps
   #indPhased <- grepl(pattern = "\\|", geno(vcf)$GT)
   # phase sets
   #ps.rle <- rle(as.integer(geno(vcf)$PS))
-  
-  geno.gr <- rowRanges(vcf)	
-  values(geno.gr) <- cbind(values(geno.gr), 
+
+  geno.gr <- rowRanges(vcf)
+  values(geno.gr) <- cbind(values(geno.gr),
                            DataFrame(GT = as.character(geno(vcf)$GT), PS = as.character(geno(vcf)$PS)))
   HT <- getPhasedAllele(geno.gr)
   values(geno.gr) <- cbind(values(geno.gr), DataFrame(HT1 = HT$h1, HT2 = HT$h2))
   geno.gr <- keepSeqlevels(geno.gr, chrs, pruning.mode="coarse")
-  
+
   return(list(vcf.filtered = vcf, geno = geno.gr))
 }
 
@@ -311,12 +415,34 @@ getPhasedAllele <- function(x){
 	h1[x$GT == "1|0"] <- as.character(x$REF)[x$GT == "1|0"]
 	h2[x$GT == "1|0"] <- as.character(unlist(x$ALT))[x$GT == "1|0"]
 	# haplotype 1 (h1) alt allele for 0|1
-	h1[x$GT == "0|1"] <- as.character(unlist(x$ALT))[x$GT == "0|1"]	
+	h1[x$GT == "0|1"] <- as.character(unlist(x$ALT))[x$GT == "0|1"]
 	h2[x$GT == "0|1"] <- as.character(x$REF)[x$GT == "0|1"]
 	return(list(h1 = h1, h2 = h2))
 }
 
-plotHaplotypeFraction <- function(dataIn, chr = c(1:22), resultType = "HaplotypeRatio", colType = "Haplotypes", 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param dataIn PARAM_DESCRIPTION
+#' @param chr PARAM_DESCRIPTION, Default: c(1:22)
+#' @param resultType PARAM_DESCRIPTION, Default: 'HaplotypeRatio'
+#' @param colType PARAM_DESCRIPTION, Default: 'Haplotypes'
+#' @param phaseBlockCol PARAM_DESCRIPTION, Default: c("#9ad0f3", "#CC79A7")
+#' @param geneAnnot PARAM_DESCRIPTION, Default: NULL
+#' @param spacing PARAM_DESCRIPTION, Default: 4
+#' @param xlim PARAM_DESCRIPTION, Default: NULL
+#' @param ... PARAM_DESCRIPTION
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname plotHaplotypeFraction
+
+plotHaplotypeFraction <- function(dataIn, chr = c(1:22), resultType = "HaplotypeRatio", colType = "Haplotypes",
 	phaseBlockCol = c("#9ad0f3", "#CC79A7"), geneAnnot = NULL, spacing = 4,  xlim = NULL,  ...) {
     if (!resultType %in% c("HaplotypeRatio", "AllelicRatio")){
       stop("plotHaplotypeFraction: resultType must be one of 'HaplotypeRatio' or 'AllelicRatio'.")
@@ -324,16 +450,16 @@ plotHaplotypeFraction <- function(dataIn, chr = c(1:22), resultType = "Haplotype
     if (!colType %in% c("Haplotypes", "CopyNumber")){
       stop("plotHaplotypeFraction: plotType must be one of 'Haplotypes' or 'CopyNumber'")
     }
-    
+
    	# use consistent chromosome naming convention
   	chr <- as.character(chr)
 	seqlevelsStyle(chr) <- seqlevelsStyle(as.character(dataIn$Chr))[1]
 
     lohCol.hap <- c(`0`=phaseBlockCol[1], `1`=phaseBlockCol[2])
-    lohCol.titan <- c("#00FF00", "#006400", "#0000FF", "#8B0000", 
-        "#006400", "#BEBEBE", "#FF0000", "#BEBEBE", 
+    lohCol.titan <- c("#00FF00", "#006400", "#0000FF", "#8B0000",
+        "#006400", "#BEBEBE", "#FF0000", "#BEBEBE",
         "#FF0000")
-    names(lohCol.titan) <- c("HOMD", "DLOH", "NLOH", "GAIN", 
+    names(lohCol.titan) <- c("HOMD", "DLOH", "NLOH", "GAIN",
         "ALOH", "HET", "ASCNA", "BCNA", "UBCNA")
     dataIn <- copy(dataIn)
     colnames(dataIn)[1:2] <- c("Chr", "Position")
@@ -347,7 +473,7 @@ plotHaplotypeFraction <- function(dataIn, chr = c(1:22), resultType = "Haplotype
     #dataIn$AllelicRatio <- dataIn$refOriginal / dataIn$tumDepthOriginal
     dataIn[, HaplotypeRatio.1 := HaplotypeRatio]#dataIn$HaplotypeCount / dataIn$HaplotypeDepth
     dataIn[, HaplotypeRatio.2 := 1 - HaplotypeRatio]#(dataIn$HaplotypeDepth - dataIn$HaplotypeCount) / dataIn$HaplotypeDepth
-    
+
     if (!is.null(chr) && length(chr) == 1) {
         for (i in chr) {
             dataByChr <- dataIn[Chr == i, ]
@@ -361,29 +487,29 @@ plotHaplotypeFraction <- function(dataIn, chr = c(1:22), resultType = "Haplotype
               colors.1 <- lohCol.titan[dataByChr[, TITANcall]]
               colors.2 <- colors.1
             }
-            
+
             par(mar = c(spacing, 8, 2, 2))
             # par(xpd=NA)
             if (missing(xlim)) {
                 xlim <- as.numeric(c(1, dataByChr[nrow(dataByChr), Position]))
             }
             if (resultType == "HaplotypeRatio"){
-              plot(dataByChr[, Position], dataByChr[, HaplotypeRatio.1], 
-                  col = colors.1, 
-                  pch = 16, xaxt = "n", las = 1, ylab = "Haplotype Fraction", xlim = xlim, 
+              plot(dataByChr[, Position], dataByChr[, HaplotypeRatio.1],
+                  col = colors.1,
+                  pch = 16, xaxt = "n", las = 1, ylab = "Haplotype Fraction", xlim = xlim,
                   ...)
               points(dataByChr[, Position], dataByChr[, HaplotypeRatio.2], col = colors.1, pch=16, ...)
             }else if (resultType == "AllelicRatio"){
-               plot(dataByChr[, Position], dataByChr[, AllelicRatio], 
-                  col = colors.1, 
-                  pch = 16, xaxt = "n", las = 1, ylab = "Allelic Fraction", xlim = xlim, 
+               plot(dataByChr[, Position], dataByChr[, AllelicRatio],
+                  col = colors.1,
+                  pch = 16, xaxt = "n", las = 1, ylab = "Allelic Fraction", xlim = xlim,
                   ...)
             }else{
               stop("Need to specify \"resultType\": HaplotypeRatio or AllelicRatio")
             }
-            lines(as.numeric(c(1, dataByChr[nrow(dataByChr), Position])), rep(0.5, 2), type = "l", 
+            lines(as.numeric(c(1, dataByChr[nrow(dataByChr), Position])), rep(0.5, 2), type = "l",
                   col = "grey", lwd = 3)
-            
+
             if (!is.null(geneAnnot)) {
                 plotGeneAnnotation(geneAnnot, i)
             }
@@ -396,32 +522,47 @@ plotHaplotypeFraction <- function(dataIn, chr = c(1:22), resultType = "Haplotype
               colors.1 <- lohCol.titan[dataIn[, TITANcall]]
               colors.2 <- colors.1
         }
-        
+
         # plot for all chromosomes specified
         dataIn <- dataIn[Chr %in% chr]
         coord <- getGenomeWidePositions(dataIn[, Chr], dataIn[, Position])
         if (resultType == "HaplotypeRatio"){
-          plot(coord$posns, as.numeric(dataIn[, HaplotypeRatio.1]), 
-            col = colors.1, pch = 16, 
+          plot(coord$posns, as.numeric(dataIn[, HaplotypeRatio.1]),
+            col = colors.1, pch = 16,
             xaxt = "n", bty = "n", las = 1, ylab = "Haplotype Fraction", ...)
           points(coord$posns, dataIn[, HaplotypeRatio.2], col = colors.1, pch=16, ...)
         }else if (resultType == "AllelicRatio"){
-          plot(coord$posns, as.numeric(dataIn[, AllelicRatio]), 
-            col = colors.2, pch = 16, 
+          plot(coord$posns, as.numeric(dataIn[, AllelicRatio]),
+            col = colors.2, pch = 16,
             xaxt = "n", bty = "n", las = 1, ylab = "Allelic Fraction", ...)
         }else{
               stop("Need to specify \"resultType\": HaplotypeRatio or AllelicRatio")
         }
-        lines(as.numeric(c(1, coord$posns[length(coord$posns)])), 
-            rep(0.5, 2), type = "l", col = "grey", 
+        lines(as.numeric(c(1, coord$posns[length(coord$posns)])),
+            rep(0.5, 2), type = "l", col = "grey",
             lwd = 3)
-        plotChrLines(unique(dataIn[, Chr]), coord$chrBkpt, 
+        plotChrLines(unique(dataIn[, Chr]), coord$chrBkpt,
             c(-0.1, 1.1))
-        
+
     }
 }
 
-keepChr <- function(tumour_reads, chr = c(1:22,"X","Y")){	
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param tumour_reads PARAM_DESCRIPTION
+#' @param chr PARAM_DESCRIPTION, Default: c(1:22, "X", "Y")
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname keepChr
+
+keepChr <- function(tumour_reads, chr = c(1:22,"X","Y")){
 	tumour_reads <- tumour_reads[space(tumour_reads) %in% chr, ]
 	tumour_reads <- as.data.frame(tumour_reads)
 	tumour_reads$space <- droplevels(tumour_reads$space)

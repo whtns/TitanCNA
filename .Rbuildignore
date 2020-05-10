@@ -2,3 +2,5 @@
 ^.travis\.yml$
 scripts/
 LICENSE
+^TitanCNA\.Rproj$
+^\.Rproj\.user$

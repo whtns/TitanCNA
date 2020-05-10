@@ -1,3 +1,18 @@
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param wigfile PARAM_DESCRIPTION
+#' @param verbose PARAM_DESCRIPTION, Default: TRUE
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname wigToRangedData
+
 wigToRangedData <- function(wigfile, verbose = TRUE) {
   .Deprecated("wigToGRanges")
   if (verbose) { message(paste("Slurping:", wigfile)) }
@@ -29,6 +44,23 @@ wigToRangedData <- function(wigfile, verbose = TRUE) {
   return(output)
 }
 
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param wigfile PARAM_DESCRIPTION
+#' @param verbose PARAM_DESCRIPTION, Default: TRUE
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname wigToGRanges
+#' @seealso
+#'
+#' @import GenomicRanges
 wigToGRanges <- function(wigfile, verbose = TRUE){
   if (verbose) { message(paste("Slurping:", wigfile)) }
   input <- readLines(wigfile, warn = FALSE)
@@ -57,6 +89,23 @@ wigToGRanges <- function(wigfile, verbose = TRUE){
                        seqnames = temp$chr, value = temp$val)
   return(output)
 }
+
+#' @title FUNCTION_TITLE
+#' @description FUNCTION_DESCRIPTION
+#' @param x PARAM_DESCRIPTION
+#' @param mappability PARAM_DESCRIPTION, Default: 0.9
+#' @param samplesize PARAM_DESCRIPTION, Default: 50000
+#' @param verbose PARAM_DESCRIPTION, Default: TRUE
+#' @return OUTPUT_DESCRIPTION
+#' @details DETAILS
+#' @examples
+#' \dontrun{
+#' if(interactive()){
+#'  #EXAMPLE1
+#'  }
+#' }
+#' @export
+#' @rdname correctReadcount
 
 correctReadcount <- function(x, mappability = 0.9, samplesize = 50000,
     verbose = TRUE) {
